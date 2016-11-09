@@ -1,6 +1,42 @@
 ﻿div.calendarmaindiv {
     position: absolute;
-    width : 200px;
+    width : 270px;
     height : 200px;
-    background-color : aqua;
+    border :2px solid #dddddd;
+    background-color : white;
+}
+
+div.monthyearname {
+    height: 15%;
+    width: auto;
+    border :1px solid #dddddd;
+    background-color: #e9e9e9;
+    text-align: center;
+
+}
+
+table.daysofweek {
+    border-collapse: separate;
+    width: 100%;
+}
+
+ td.daysofweek {
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    font-weight: normal;
+}
+
+  td.numbertd {
+    text-align: center;
+    font-weight: normal;
+
+}
+
+ span.monthname{
+
+ }
+
+ table.numbertable {
+    border-collapse: separate;
+    width: 100%;
 }
