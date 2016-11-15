@@ -18,17 +18,19 @@
                 // maindiv
                 var maindiv = $('<div class="calendarmaindiv">\
                                 <div class="monthyearname">\
-                                    <span>Месяц</span>\
-                                \</div>\
+                                <input class="buttonleft" type="button"></input>\
+                                <span class="monthname" id="monthname"></span>\
+                                <input class="buttonright" type="button"></input>\
+                                </div>\
                                 <table class="daysofweek">\
                                 <tr>\
                                     <td class="daysofweek">Su</td>\
                                     <td class="daysofweek">Mo</td>\
-                                    <td class="daysofweek">Tue</td>\
-                                    <td class="daysofweek">Wed</td>\
-                                    <td class="daysofweek">Thu</td>\
+                                    <td class="daysofweek">Tu</td>\
+                                    <td class="daysofweek">We</td>\
+                                    <td class="daysofweek">Th</td>\
                                     <td class="daysofweek">Fr</td>\
-                                    <td class="daysofweek">Sut</td>\
+                                    <td class="daysofweek">Su</td>\
                                 </tr>\
                                 <tr>\
                                     <td></td>\
@@ -94,22 +96,21 @@
                 $(".calendarmaindiv").css("left", inputPosition.left - (maindiv.outerWidth() - this.element.outerWidth()));
                 // initially div hidde
                 maindiv.hide();
-                this.element.on('click', function (event) {
-                    maindiv.show();
-                    var input = event.target;
-                    if (!input.value) {
-                        try {
-                            Date.parseExact(input.value, [getDateMask(dateformat, delimeter)]);
-                        }
-                        catch (ex) {
-                            debugger;
-                            setCurrentDate(self.initialyear);
-                        }
-                    }
-                    else {
+                this.element.on('click',
+                    function(event) {
+                        maindiv.show();
+                        var input = event.target;
+                        if (!input.value) {
+                            try {
+                                Date.parseExact(input.value, [getDateMask(dateformat, delimeter)]);
+                            } catch (ex) {
+                                debugger;
+                                setCurrentDate(self.initialyear);
+                            }
+                        } else {
 
-                    }
-                })
+                        }
+                    });
             } else {
                 throw 'datecalendar widget only works on input elements';
             }
@@ -130,18 +131,18 @@
     {
         switch (monthnum)
         {
-            case "01": return "January";
-            case "02": return "Febrary";
-            case "03": return "March";
-            case "04": return "April";
-            case "05": return "May";
-            case "06": return "June";
-            case "07": return "July";
-            case "08": return "August";
-            case "09": return "September";
-            case "10": return "October";
-            case "11": return "November";
-            case "12": return "December";
+            case 0: return "January";
+            case 01: return "Febrary";
+            case 02: return "March";
+            case 03: return "April";
+            case 04: return "May";
+            case 05: return "June";
+            case 06: return "July";
+            case 07: return "August";
+            case 08: return "September";
+            case 09: return "October";
+            case 10: return "November";
+            case 11: return "December";
             default: throw 'datecalendar: month with number ' + monthnum+ ' does not exists';
         }
     }
@@ -206,6 +207,7 @@
         var k=0;
         var daysInCurMonth = daysInMonth(curmonth, curyear);
         debugger;
+        $("#monthname").html(convertNumMonthToText(curmonth) + " "+ curyear);
         for (i=1;i<arraytd.length;i++)
         {
             for (; j < arraytd[i].length; j++) {
@@ -216,6 +218,8 @@
             }
             j = 0;
         }
+        debugger;
+        
     }
 
     var convertTableToArray = function ()
@@ -228,7 +232,6 @@
             var tableData = $(this).find('td');
             if (tableData.length > 0) {
                 tableData.each(function () {
-                    debugger;
                     $(this).addClass('numbertd');
                     arrayOfThisRow.push($(this));
                 });
