@@ -1,7 +1,11 @@
 ﻿(function ($) {
     $.widget("ui.datecalendar", {
         initialyear: 1995,
-        initialdayfirstjan:"sat",
+        selectedMonthYear: {
+            Month: -1,
+            Year:-1
+        },
+        arraytd:{},
         options:
             {
                 delimeter: '/',
@@ -18,7 +22,7 @@
                 // maindiv
                 var maindiv = $('<div class="calendarmaindiv">\
                                 <div class="monthyearname">\
-                                <input class="buttonleft" type="button"></input>\
+                                <input class="buttonleft" type="button" ></input>\
                                 <span class="monthname" id="monthname"></span>\
                                 <input class="buttonright" type="button"></input>\
                                 </div>\
@@ -30,7 +34,7 @@
                                     <td class="daysofweek">We</td>\
                                     <td class="daysofweek">Th</td>\
                                     <td class="daysofweek">Fr</td>\
-                                    <td class="daysofweek">Su</td>\
+                                    <td class="daysofweek">Sa</td>\
                                 </tr>\
                                 <tr>\
                                     <td></td>\
@@ -89,33 +93,54 @@
                                 </table>\
                             </div>');
                 maindiv.insertAfter(this.element);
+
+               
                 // position input element
                 var inputPosition = this.element.position();
                 // configure position div based on position input
                 $(".calendarmaindiv").css("top", inputPosition.top + this.element.outerHeight());
                 $(".calendarmaindiv").css("left", inputPosition.left - (maindiv.outerWidth() - this.element.outerWidth()));
+                $('.buttonright')
+                    .on('click',
+                    function () {
+                        var curDate = new Date(self.selectedMonthYear.Year, self.selectedMonthYear.Month, 1);
+                        curDate.setMonth(curDate.getMonth() + 1);
+                        setCurrentDate(self.initialyear, self.selectedMonthYear, curDate, self.arraytd);
+                    });
+                $('.buttonleft')
+                    .on('click',
+                    function () {
+                        var curDate = new Date(self.selectedMonthYear.Year, self.selectedMonthYear.Month, 1);
+                        curDate.setMonth(curDate.getMonth() - 1);
+                        setCurrentDate(self.initialyear, self.selectedMonthYear, curDate, self.arraytd);
+                    });
+                self.arraytd = convertTableToArray();
                 // initially div hidde
                 maindiv.hide();
+
                 this.element.on('click',
-                    function(event) {
+                    function (event) {
+                        
                         maindiv.show();
                         var input = event.target;
-                        if (!input.value) {
+
+                        var neededDate;
+                        if (input.value) {
                             try {
-                                Date.parseExact(input.value, [getDateMask(dateformat, delimeter)]);
+                                 neededDate = Date.parseExact(input.value, [getDateMask(dateformat, delimeter)]);
                             } catch (ex) {
-                                debugger;
-                                setCurrentDate(self.initialyear);
+
+                                neededDate = new Date();
                             }
                         } else {
-
+                            neededDate = new Date();
                         }
+                        setCurrentDate(self.initialyear, self.selectedMonthYear, neededDate, self.arraytd);
                     });
             } else {
                 throw 'datecalendar widget only works on input elements';
             }
         },
-
         // Contained in jquery.qs.tagger.js
         destroy: function () {
 
@@ -132,15 +157,15 @@
         switch (monthnum)
         {
             case 0: return "January";
-            case 01: return "Febrary";
-            case 02: return "March";
-            case 03: return "April";
-            case 04: return "May";
-            case 05: return "June";
-            case 06: return "July";
-            case 07: return "August";
-            case 08: return "September";
-            case 09: return "October";
+            case 1: return "Febrary";
+            case 2: return "March";
+            case 3: return "April";
+            case 4: return "May";
+            case 5: return "June";
+            case 6: return "July";
+            case 7: return "August";
+            case 8: return "September";
+            case 9: return "October";
             case 10: return "November";
             case 11: return "December";
             default: throw 'datecalendar: month with number ' + monthnum+ ' does not exists';
@@ -163,7 +188,7 @@
         }
     }
 
-    var getDateMask = function (dateformat, dlimeter) {
+    var getDateMask = function(dateformat, dlimeter) {
         if (dateformat.toLowerCase() === "ddmmyyyy") {
             return "dd" + dlimeter + "mm" + dlimeter + "yyyy";
         }
@@ -178,13 +203,13 @@
         }
     }
 
-    var setCurrentDate = function (initialyear)
-    {
-        var arraytd = convertTableToArray();
-        var today = new Date();
-        var curday = today.getDate();
-        var curmonth = today.getMonth();
-        var curyear = today.getFullYear();
+    var setCurrentDate = function (initialyear, selectedMonthYear, neededDate, tablearray) {
+
+        var curday = neededDate.getDate();
+        var curmonth = neededDate.getMonth();
+        var curyear = neededDate.getFullYear();
+        selectedMonthYear.Year = curyear;
+        selectedMonthYear.Month = curmonth;
         var difyear = curyear - initialyear;
         // leap year one in 4 year
         var deviding;
@@ -196,35 +221,38 @@
         if ((curyear % 4 == 0 && difyear == 0)) {
             deviding = 0;
         }
-
+        debugger;
         deviding = Math.floor(difyear / 4);
         var daysInDiffer = (difyear - deviding) * 365 + deviding * 366;
         var daysInCurYearUntilMonth = getSumDaysTillMonth(curyear, curmonth);
         var totalDays = daysInDiffer + daysInCurYearUntilMonth;
-        var dayofweek = Math.floor(totalDays % 7);
+        var dayofweek = totalDays % 7;
         var i;
-        var j = dayofweek;
+        // indexing array of days in week is begin from 0
+        // but if reminder equal 0 this points to last day of week, which index equal 6
+        // from other reminder we must substract 1
+        var j = dayofweek;//=== 0 ? 0 : dayofweek-1;
+
         var k=0;
         var daysInCurMonth = daysInMonth(curmonth, curyear);
         debugger;
-        $("#monthname").html(convertNumMonthToText(curmonth) + " "+ curyear);
-        for (i=1;i<arraytd.length;i++)
+        $("#monthname").html(convertNumMonthToText(curmonth) + " " + curyear);
+        clearTable(tablearray);
+        for (i = 1; i < tablearray.length; i++)
         {
-            for (; j < arraytd[i].length; j++) {
+            for (; j < tablearray[i].length; j++) {
                 k++;
-                $(arraytd[i][j]).html(k);
+                $(tablearray[i][j]).html(k);
                 if (k >= daysInCurMonth) return;
                 
             }
             j = 0;
         }
-        debugger;
-        
+
     }
 
-    var convertTableToArray = function ()
-    {
-        
+   function convertTableToArray () {
+        debugger;
         var tableArray = [];
         $(".daysofweek tr").each(function (index) {
             if (index==0) return;
@@ -247,12 +275,25 @@
     }
 
     var getSumDaysTillMonth = function (year, tillmonth) {
+        debugger;
         var totalday = 0;
         var month;
-        for (month = 0; month < tillmonth; month++) {
+        for (month = 1; month < tillmonth+1; month++) {
             totalday += daysInMonth(month, year);
         }
         return totalday;
     }
+
+    var clearTable = function (arraytd) {
+        if (!arraytd) return;
+        var j;
+        var i;
+        for (i = 1; i < arraytd.length; i++) {
+            for (j=0; j < arraytd[i].length; j++) {
+                $(arraytd[i][j]).html("");
+            }
+        }
+    }
+   
 
 }(jQuery));
