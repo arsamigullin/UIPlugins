@@ -45,8 +45,34 @@
 <script>
  
     $(function () {
-        $("#dateclnd").datecalendar();
+       
+        createPlugin('first');
+        $("#dateclnd")
+            .datecalendar({
+                delimeter: ".",
+                dateformat: "ddmmyyyy"
+            });
+        debugger;
+        $("#dateclndnext")
+           .datecalendar({
+               delimeter: "/",
+               dateformat: "yyyymmdd",
+               _initialyear: "sdf"
+           });
+        debugger;
     });
+
+    function createPlugin(name) {
+        $.ui[name] = function (options) {
+            return this.each(function () {
+                debugger;
+                if (!$.data(this, 'plugin_' + name)) {
+                    $.data(this, 'plugin_' + name,
+                    new Plugin(this, options));
+                }
+            });
+        }
+    }
 </script>
 </body>
 </html>
